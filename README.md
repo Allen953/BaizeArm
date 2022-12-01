@@ -13,4 +13,6 @@ robot arm
 用了一块BaizeCarBoard板子做第1个关节和末端夹爪的控制。
 第一个关节采用步进电机做执行器，而末端夹爪采用舵机做执行器。
 
+![关节控制驱动器](https://github.com/Allen953/BaizeArm/blob/main/7.Photos%20%26%20Videos/joint.png)
+
 
