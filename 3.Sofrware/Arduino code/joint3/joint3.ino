@@ -86,7 +86,8 @@ void JointStateCallback(const robot_msg::robotarm_7dof_jointstate& robotarm_join
   motor.loopFOC();
   motor.move(robotarm_joint.position[2]*10+rec);
 
-
+  Serial.print(robotarm_joint.position[2]);
+  Serial.print("      ;      ");
   Serial.println(sensor.getAngle());
   // We can now plot text on screen using the "print" class
   delay(1);
@@ -94,7 +95,7 @@ void JointStateCallback(const robot_msg::robotarm_7dof_jointstate& robotarm_join
  
  
 std_msgs::String str_msg;
-ros::Publisher chatter("chatter11", &str_msg);
+ros::Publisher chatter("chatter_Baizearm_j3", &str_msg);
 ros::Subscriber<robot_msg::robotarm_7dof_jointstate> subjoint("robotarm_joint", &JointStateCallback);
 
 ros::NodeHandle_<WiFiHardware> nh;
