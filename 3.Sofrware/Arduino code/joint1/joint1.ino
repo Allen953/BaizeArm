@@ -3,7 +3,14 @@
 #include <std_msgs/String.h>
 #include <std_msgs/Int16.h>
 #include <std_msgs/Float64.h>
+#include <ESP32Servo.h>
 #include <robot_msg/robotarm_7dof_jointstate.h>
+//末端夹爪：80度为松开，110度为🏠夹住
+Servo myservo1;  // create servo object to control a servo,joint4
+Servo myservo2;  // create servo object to control a servo,joint5
+
+#define servoPin1 12
+#define servoPin2 13
 
 #define pi 3.1416
 
@@ -27,7 +34,7 @@
 #define Step_R3 RB_Motor1
 #define Step_R4 RB_Motor2
 
-#define StepVelo 5
+#define StepVelo 1
 
 void init_pin(){
   pinMode(LF_Motor1,OUTPUT);
@@ -115,14 +122,27 @@ void StepL_position(int Goal_pos){
   
   Serial.println(current_pos);
 }
- 
+
+void initservo(){
+  ESP32PWM::allocateTimer(0);
+  ESP32PWM::allocateTimer(1);
+  ESP32PWM::allocateTimer(2);
+  ESP32PWM::allocateTimer(3);
+  myservo1.setPeriodHertz(50);    // standard 50 hz servo
+  myservo1.attach(servoPin1, 500, 2500); // attaches the servo on pin 
+
+  myservo2.setPeriodHertz(50);    // standard 50 hz servo
+  myservo2.attach(servoPin2, 500, 2500); // attaches the servo on pin 
+  
+}
+
 //
 // WiFi Definitions //
 //
 const char* ssid = "S725";
 const char* password = "s725s725";
  
-IPAddress server(192, 168, 1, 108); // ip of your ROS server
+IPAddress server(192, 168, 1, 111); // ip of your ROS server
 IPAddress ip_address;
 int status = WL_IDLE_STATUS;
  
@@ -159,9 +179,14 @@ class WiFiHardware {
 };
  
 int i;
+float servo1_pos = 90.0;
+bool servo2_f = 0;//0为松开，1为夹住
  
 void chatterCallback(const robot_msg::robotarm_7dof_jointstate& robotarm_joint) {
-   Serial.println(int(180.0*robotarm_joint.position[0]/pi));
+   
+   servo1_pos = 180.0*robotarm_joint.position[3]/pi;
+   Serial.println(servo1_pos);
+   servo2_f = robotarm_joint.zhuazi;
    StepL_position(int(180.0*robotarm_joint.position[0]/pi));
 }
  
@@ -198,11 +223,14 @@ void setup() {
   nh.initNode();
   nh.advertise(chatter);
   nh.subscribe(sub);
+  initservo();
 }
  
 void loop() {
   str_msg.data = hello;
   chatter.publish( &str_msg );
   nh.spinOnce();
-  delay(50);
+  myservo1.write(servo1_pos+90);
+  myservo2.write(servo2_f?110:80);
+  delay(10);
 }
