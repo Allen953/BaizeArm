@@ -24,17 +24,13 @@
 #include <std_msgs/Float64.h>
 #include <rosserial_arduino/Adc.h>
 #include <robot_msg/robotarm_7dof_jointstate.h>
-#include <Wire.h>
 #include <SimpleFOC.h>
 
 #define rec 2.95
 #define dir 1
 
-MagneticSensorI2C sensor = MagneticSensorI2C(AS5600_I2C);
-TwoWire I2Cone = TwoWire(0);
-
 BLDCMotor motor = BLDCMotor(11);
-BLDCDriver3PWM driver = BLDCDriver3PWM(17, 18, 19, 21, 22, 23);
+BLDCDriver3PWM driver = BLDCDriver3PWM(17, 19, 18, 21, 22, 23);
 
 
 //目标位置
@@ -44,7 +40,7 @@ float target_position = 0;
 const char* ssid = "S725";
 const char* password = "s725s725";
 
-IPAddress server(192, 168, 1, 108); // ip of your ROS server
+IPAddress server(192, 168, 1, 111); // ip of your ROS server
 IPAddress ip_address;
 int status = WL_IDLE_STATUS;
 
@@ -83,24 +79,22 @@ class WiFiHardware {
 int i;
 
 void JointStateCallback(const robot_msg::robotarm_7dof_jointstate& robotarm_joint) {
-  //关节3
-  target_position =  robotarm_joint.position[2]*10+rec;
-  
+  target_position = robotarm_joint.position[1]*10+rec ;
   // We can now plot text on screen using the "print" class
 }
  
  
 std_msgs::String str_msg;
-ros::Publisher chatter("Joint3", &str_msg);
+ros::Publisher chatter("BaizeArmj2", &str_msg);
 ros::Subscriber<robot_msg::robotarm_7dof_jointstate> subjoint("robotarm_joint", &JointStateCallback);
 
 ros::NodeHandle_<WiFiHardware> nh;
-char hello[20] = "Joint3 alive!";
+char hello[20] = "Joint2 alive!";
  
  
 void setupWiFi()
 {
-  WiFi.setHostname("BaizeArm-j3");
+  WiFi.setHostname("BaizeArm-j2");
   WiFi.begin(ssid, password);
   Serial.print("\nConnecting to "); Serial.println(ssid);
   uint8_t i = 0;
@@ -115,11 +109,6 @@ void setupWiFi()
 }
 
 void setup() {
-  I2Cone.begin(26, 25, 400000); 
-  sensor.init(&I2Cone);
-  //连接motor对象与传感器对象
-  motor.linkSensor(&sensor);
-  
   Serial.begin(115200);
   //供电电压设置 [V]
   driver.voltage_power_supply = 12.0;
@@ -128,32 +117,21 @@ void setup() {
   //连接电机和driver对象
   motor.linkDriver(&driver);
   
-  //FOC模型选择
-  motor.foc_modulation = FOCModulationType::SpaceVectorPWM;
   //运动控制模式设置
-  motor.controller = MotionControlType::angle;
+  motor.controller = MotionControlType::angle_openloop;
 
   //速度PI环设置
-  motor.PID_velocity.P = 0.2;
-  motor.PID_velocity.I = 20;
   //角度P环设置 
-  motor.P_angle.P = 20;
   //最大电机限制电机
   motor.voltage_limit = 12.0;
   
-  //速度低通滤波时间常数
-  motor.LPF_velocity.Tf = 0.01;
-
   //设置最大速度限制
-  motor.velocity_limit = 60;
+  motor.velocity_limit = 20;
 
   motor.useMonitoring(Serial);
   
   //初始化电机
   motor.init();
-  //初始化 FOC
-  motor.initFOC();
-
   Serial.println(F("Motor ready."));
   
   setupWiFi();
@@ -176,7 +154,5 @@ void loop() {
   nh.spinOnce();
   motor.loopFOC();
   motor.move(target_position);
-  Serial.print(target_position);
-  Serial.print(",");
-  Serial.println(sensor.getAngle());
+//  delay(5);/
 }

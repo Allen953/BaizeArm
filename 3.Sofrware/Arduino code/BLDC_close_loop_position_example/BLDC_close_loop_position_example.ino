@@ -32,7 +32,7 @@ TwoWire I2Cone = TwoWire(0);
 
 //电机参数
 BLDCMotor motor = BLDCMotor(11);
-BLDCDriver3PWM driver = BLDCDriver3PWM(17, 19, 18, 21, 22, 23);
+BLDCDriver3PWM driver = BLDCDriver3PWM(17, 18, 19, 21, 22, 23);
 
 //命令设置
 float target_velocity = 0;
@@ -69,7 +69,7 @@ void setup() {
   motor.LPF_velocity.Tf = 0.01;
 
   //设置最大速度限制
-  motor.velocity_limit = 60;
+  motor.velocity_limit = 10;
 
   Serial.begin(115200);
   motor.useMonitoring(Serial);

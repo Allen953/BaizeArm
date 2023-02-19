@@ -83,18 +83,15 @@ class WiFiHardware {
 int i;
 
 void JointStateCallback(const robot_msg::robotarm_7dof_jointstate& robotarm_joint) {
-  motor.loopFOC();
-  motor.move(robotarm_joint.position[1]*10+rec);
-
-
-  Serial.println(sensor.getAngle());
+  
+  target_position =  robotarm_joint.position[1]*10+rec;
+  
   // We can now plot text on screen using the "print" class
-  delay(1);
 }
  
  
 std_msgs::String str_msg;
-ros::Publisher chatter("chatter11", &str_msg);
+ros::Publisher chatter("Joint2", &str_msg);
 ros::Subscriber<robot_msg::robotarm_7dof_jointstate> subjoint("robotarm_joint", &JointStateCallback);
 
 ros::NodeHandle_<WiFiHardware> nh;
@@ -177,5 +174,9 @@ void loop() {
   str_msg.data = hello;
   chatter.publish( &str_msg );
   nh.spinOnce();
-  delay(5);
+  motor.loopFOC();
+  motor.move(target_position);
+  Serial.print(target_position);
+  Serial.print(",");
+  Serial.println(sensor.getAngle());
 }

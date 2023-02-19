@@ -31,12 +31,6 @@ Commander command = Commander(Serial);
 void doTarget(char* cmd) { command.scalar(&target_velocity, cmd); }
 
 void setup() {
-  pinMode(26,OUTPUT);
-  digitalWrite(26,HIGH);
-  pinMode(27,OUTPUT);
-  digitalWrite(27,HIGH);
-  pinMode(14,OUTPUT);
-  digitalWrite(14,HIGH);
 
   driver.voltage_power_supply = 12.0;
   driver.init();

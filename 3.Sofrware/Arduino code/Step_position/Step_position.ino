@@ -20,7 +20,7 @@
 #define Step_R3 RB_Motor1
 #define Step_R4 RB_Motor2
 
-#define StepVelo 5
+#define StepVelo 1
 
 void init_pin(){
   pinMode(LF_Motor1,OUTPUT);

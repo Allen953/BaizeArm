@@ -192,15 +192,15 @@ void chatterCallback(const robot_msg::robotarm_7dof_jointstate& robotarm_joint) 
  
  
 std_msgs::String str_msg;
-ros::Publisher chatter("esp_step", &str_msg);
+ros::Publisher chatter("BaizeArmj1", &str_msg);
 ros::Subscriber<robot_msg::robotarm_7dof_jointstate> sub("robotarm_joint", &chatterCallback);
 ros::NodeHandle_<WiFiHardware> nh;
-char hello[30] = "ESP32 stepservo alive!";
+char hello[30] = "Joint1 alive!";
  
  
 void setupWiFi()
 {
-  
+  WiFi.setHostname("BaizeArm-j1");
   WiFi.begin(ssid, password);
   Serial.print("\nConnecting to "); Serial.println(ssid);
   uint8_t i = 0;
